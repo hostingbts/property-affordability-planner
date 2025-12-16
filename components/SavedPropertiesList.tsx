@@ -171,98 +171,118 @@ export default function SavedPropertiesList() {
               No properties match the current filters.
             </div>
           ) : (
-            filteredProperties.map(({ property, loanResult, savingResult }) => {
-              const firstImage =
-                property.images && property.images.length > 0
-                  ? property.images[0]
-                  : property.imageUrl;
-
-              return (
-                <div
-                  key={property.id}
-                  className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200"
-                >
-                  {/* Photo on the left */}
-                  <div className="flex-shrink-0">
-                    {firstImage ? (
-                      <img
-                        src={firstImage}
-                        alt={property.title}
-                        className="w-20 h-20 object-cover rounded-lg"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = "none";
-                        }}
-                      />
-                    ) : (
-                      <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
-                        <span className="text-gray-400 text-xs">No image</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Content on the right */}
-                  <div className="flex-1 flex items-center gap-6 overflow-x-auto">
-                    {/* Title */}
-                    <div className="flex-shrink-0 min-w-[150px]">
-                      <h3 className="font-semibold text-gray-900 line-clamp-1">
-                        {property.title}
-                      </h3>
-                    </div>
-
-                    {/* Price */}
-                    <div className="flex-shrink-0 min-w-[120px]">
-                      <p className="text-xs text-gray-500 mb-1">Price</p>
-                      <p className="font-semibold text-gray-900">
-                        {formatCurrency(property.price, settings.currency)}
-                      </p>
-                    </div>
-
-                    {/* Loan Needed */}
-                    {settings.mode === "loan" && (
-                      <div className="flex-shrink-0 min-w-[120px]">
-                        <p className="text-xs text-gray-500 mb-1">Loan Needed</p>
-                        <p className="font-semibold text-green-600">
-                          {formatCurrency(loanResult.loanNeeded, settings.currency)}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Net Monthly Payment */}
-                    {settings.mode === "loan" && (
-                      <div className="flex-shrink-0 min-w-[140px]">
-                        <p className="text-xs text-gray-500 mb-1">Net Monthly Payment</p>
-                        <p className="font-semibold text-green-600">
-                          {formatCurrency(loanResult.monthlyPayment, settings.currency)}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Saving Per Month (for saving mode) */}
-                    {settings.mode === "savingPerMonth" && (
-                      <div className="flex-shrink-0 min-w-[140px]">
-                        <p className="text-xs text-gray-500 mb-1">Saving Per Month</p>
-                        <p className="font-semibold text-green-600">
-                          {formatCurrency(savingResult.savingPerMonth, settings.currency)}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* View Details Button */}
-                    <div className="flex-shrink-0 ml-auto">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedProperty(property);
-                        }}
-                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
-                      >
-                        View Details
-                      </button>
-                    </div>
-                  </div>
+            <>
+              {/* Header Row */}
+              <div className="flex items-center gap-4 p-4 bg-gray-100 rounded-xl border border-gray-200 font-semibold text-sm text-gray-700">
+                <div className="flex-shrink-0 w-20">
+                  {/* Photo column - no label */}
                 </div>
-              );
-            })
+                <div className="flex-1 flex items-center gap-6">
+                  <div className="flex-shrink-0 min-w-[150px]">Title</div>
+                  <div className="flex-shrink-0 min-w-[120px]">Price</div>
+                  {settings.mode === "loan" && (
+                    <>
+                      <div className="flex-shrink-0 min-w-[120px]">Loan Needed</div>
+                      <div className="flex-shrink-0 min-w-[140px]">Net Monthly Payment</div>
+                    </>
+                  )}
+                  {settings.mode === "savingPerMonth" && (
+                    <div className="flex-shrink-0 min-w-[140px]">Saving Per Month</div>
+                  )}
+                  <div className="flex-shrink-0 ml-auto min-w-[120px]">Actions</div>
+                </div>
+              </div>
+
+              {/* Property Rows */}
+              {filteredProperties.map(({ property, loanResult, savingResult }) => {
+                const firstImage =
+                  property.images && property.images.length > 0
+                    ? property.images[0]
+                    : property.imageUrl;
+
+                return (
+                  <div
+                    key={property.id}
+                    className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200"
+                  >
+                    {/* Photo on the left */}
+                    <div className="flex-shrink-0">
+                      {firstImage ? (
+                        <img
+                          src={firstImage}
+                          alt={property.title}
+                          className="w-20 h-20 object-cover rounded-lg"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
+                          <span className="text-gray-400 text-xs">No image</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Content on the right */}
+                    <div className="flex-1 flex items-center gap-6 overflow-x-auto">
+                      {/* Title */}
+                      <div className="flex-shrink-0 min-w-[150px]">
+                        <h3 className="font-semibold text-gray-900 line-clamp-1">
+                          {property.title}
+                        </h3>
+                      </div>
+
+                      {/* Price */}
+                      <div className="flex-shrink-0 min-w-[120px]">
+                        <p className="font-semibold text-gray-900">
+                          {formatCurrency(property.price, settings.currency)}
+                        </p>
+                      </div>
+
+                      {/* Loan Needed */}
+                      {settings.mode === "loan" && (
+                        <div className="flex-shrink-0 min-w-[120px]">
+                          <p className="font-semibold text-green-600">
+                            {formatCurrency(loanResult.loanNeeded, settings.currency)}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Net Monthly Payment */}
+                      {settings.mode === "loan" && (
+                        <div className="flex-shrink-0 min-w-[140px]">
+                          <p className="font-semibold text-green-600">
+                            {formatCurrency(loanResult.monthlyPayment, settings.currency)}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Saving Per Month (for saving mode) */}
+                      {settings.mode === "savingPerMonth" && (
+                        <div className="flex-shrink-0 min-w-[140px]">
+                          <p className="font-semibold text-green-600">
+                            {formatCurrency(savingResult.savingPerMonth, settings.currency)}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* View Details Button */}
+                      <div className="flex-shrink-0 ml-auto min-w-[120px]">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedProperty(property);
+                          }}
+                          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+                        >
+                          View Details
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </>
           )}
         </div>
       </div>
