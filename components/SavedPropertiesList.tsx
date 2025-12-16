@@ -6,6 +6,7 @@ import { PropertyInput } from "@/types";
 import { calculateLoanMode, calculateSavingMode } from "@/lib/calculations";
 import { formatCurrency } from "@/lib/utils";
 import PropertyDetailsDrawer from "./PropertyDetailsDrawer";
+import ImageCarousel from "./ImageCarousel";
 
 export default function SavedPropertiesList() {
   const { properties, settings, deleteProperty } = useApp();
@@ -59,23 +60,19 @@ export default function SavedPropertiesList() {
                 className="bg-gray-50 rounded-xl p-4 hover:shadow-md transition-shadow cursor-pointer border border-gray-200"
                 onClick={() => setSelectedProperty(property)}
               >
-                {/* Thumbnail */}
-                {property.imageUrl ? (
-                  <div className="mb-3 rounded-lg overflow-hidden">
-                    <img
-                      src={property.imageUrl}
-                      alt={property.title}
-                      className="w-full h-32 object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = "none";
-                      }}
-                    />
-                  </div>
-                ) : (
-                  <div className="mb-3 rounded-lg bg-gray-200 h-32 flex items-center justify-center">
-                    <span className="text-gray-400 text-sm">No image</span>
-                  </div>
-                )}
+                {/* Image Carousel */}
+                <div className="mb-3">
+                  <ImageCarousel
+                    images={
+                      property.images && property.images.length > 0
+                        ? property.images
+                        : property.imageUrl
+                        ? [property.imageUrl]
+                        : []
+                    }
+                    height="h-32"
+                  />
+                </div>
 
                 {/* Title */}
                 <h3 className="font-semibold text-gray-900 mb-2 line-clamp-1">

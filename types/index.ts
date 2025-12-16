@@ -16,7 +16,8 @@ export interface PropertyInput {
   id: string;
   title: string;          // user-friendly name of the property
   link: string;           // URL to the property ad
-  imageUrl?: string;      // optional thumbnail
+  imageUrl?: string;      // optional thumbnail (deprecated, use images array)
+  images?: string[];      // array of image URLs from the ad
   price: number;          // total property price
   interestRate: number;   // annual %, e.g. 8.5
   termYears: number;      // loan term in years

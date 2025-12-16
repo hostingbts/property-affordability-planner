@@ -22,6 +22,7 @@ export default function SavePropertyModal({
     title: "",
     link: initialLink,
     imageUrl: "",
+    images: [] as string[],
     notes: "",
   });
   const [isFetchingImages, setIsFetchingImages] = useState(false);
@@ -37,8 +38,18 @@ export default function SavePropertyModal({
       );
       const data = await response.json();
 
-      if (data.imageUrl) {
-        setFormData((prev) => ({ ...prev, imageUrl: data.imageUrl }));
+      if (data.images && data.images.length > 0) {
+        setFormData((prev) => ({
+          ...prev,
+          images: data.images,
+          imageUrl: data.images[0] || data.imageUrl || "", // Keep first image for backward compatibility
+        }));
+      } else if (data.imageUrl) {
+        setFormData((prev) => ({
+          ...prev,
+          imageUrl: data.imageUrl,
+          images: [data.imageUrl],
+        }));
       }
     } catch (error) {
       console.error("Error fetching images:", error);
@@ -87,7 +98,8 @@ export default function SavePropertyModal({
     addProperty({
       title: formData.title || "Untitled Property",
       link: formData.link || "#",
-      imageUrl: formData.imageUrl || undefined,
+      imageUrl: formData.images[0] || formData.imageUrl || undefined, // Backward compatibility
+      images: formData.images.length > 0 ? formData.images : (formData.imageUrl ? [formData.imageUrl] : undefined),
       notes: formData.notes || undefined,
       price: draft.price,
       interestRate: draft.interestRate,
@@ -147,28 +159,42 @@ export default function SavePropertyModal({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Image URL (Optional)
+              Images {formData.images.length > 0 && `(${formData.images.length} found)`}
             </label>
-            <input
-              type="url"
-              value={formData.imageUrl}
-              onChange={(e) =>
-                setFormData({ ...formData, imageUrl: e.target.value })
-              }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              placeholder="Auto-filled from link or paste manually"
-            />
-            {formData.imageUrl && (
-              <div className="mt-2 rounded-lg overflow-hidden">
-                <img
-                  src={formData.imageUrl}
-                  alt="Preview"
-                  className="w-full h-32 object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = "none";
-                  }}
-                />
+            {formData.images.length > 0 ? (
+              <div className="space-y-2">
+                <div className="text-xs text-gray-500 mb-2">
+                  {formData.images.length} image{formData.images.length !== 1 ? "s" : ""} found from the link. You can scroll through them when viewing the property.
+                </div>
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {formData.images.slice(0, 5).map((img, idx) => (
+                    <img
+                      key={idx}
+                      src={img}
+                      alt={`Preview ${idx + 1}`}
+                      className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = "none";
+                      }}
+                    />
+                  ))}
+                  {formData.images.length > 5 && (
+                    <div className="w-20 h-20 flex items-center justify-center bg-gray-100 rounded-lg border border-gray-200 text-xs text-gray-500">
+                      +{formData.images.length - 5} more
+                    </div>
+                  )}
+                </div>
               </div>
+            ) : (
+              <input
+                type="url"
+                value={formData.imageUrl}
+                onChange={(e) =>
+                  setFormData({ ...formData, imageUrl: e.target.value, images: e.target.value ? [e.target.value] : [] })
+                }
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                placeholder="Auto-filled from link or paste manually"
+              />
             )}
           </div>
 

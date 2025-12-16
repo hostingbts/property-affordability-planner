@@ -83,23 +83,30 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Remove duplicates and return the first valid image
+    // Remove duplicates and filter valid images
     const uniqueImages = Array.from(new Set(images));
-    const validImage = uniqueImages.find((img) => {
+    const validImages = uniqueImages.filter((img) => {
       const lowerImg = img.toLowerCase();
+      // Include images that look like property photos
       return (
         lowerImg.endsWith(".jpg") ||
         lowerImg.endsWith(".jpeg") ||
         lowerImg.endsWith(".png") ||
         lowerImg.endsWith(".webp") ||
         lowerImg.includes("image") ||
-        lowerImg.includes("photo")
+        lowerImg.includes("photo") ||
+        lowerImg.includes("property") ||
+        lowerImg.includes("listing") ||
+        lowerImg.includes("real-estate")
       );
     });
 
+    // If no valid images found, return all unique images (user can filter manually)
+    const allImages = validImages.length > 0 ? validImages : uniqueImages;
+
     return NextResponse.json({
-      imageUrl: validImage || uniqueImages[0] || null,
-      allImages: uniqueImages.slice(0, 5), // Return up to 5 images for debugging
+      imageUrl: allImages[0] || null, // Keep for backward compatibility
+      images: allImages, // Return all images
     });
   } catch (error: any) {
     console.error("Error fetching property images:", error);

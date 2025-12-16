@@ -5,6 +5,7 @@ import { useApp } from "@/context/AppContext";
 import { PropertyInput } from "@/types";
 import { calculateLoanMode, calculateSavingMode } from "@/lib/calculations";
 import { formatCurrency } from "@/lib/utils";
+import ImageCarousel from "./ImageCarousel";
 
 interface PropertyDetailsDrawerProps {
   property: PropertyInput;
@@ -25,6 +26,7 @@ export default function PropertyDetailsDrawer({
     title: property.title,
     link: property.link,
     imageUrl: property.imageUrl || "",
+    images: property.images || (property.imageUrl ? [property.imageUrl] : []),
     notes: property.notes || "",
   });
 
@@ -59,7 +61,8 @@ export default function PropertyDetailsDrawer({
       extraCosts: formData.extraCosts,
       title: formData.title,
       link: formData.link,
-      imageUrl: formData.imageUrl || undefined,
+      imageUrl: formData.images[0] || formData.imageUrl || undefined,
+      images: formData.images.length > 0 ? formData.images : (formData.imageUrl ? [formData.imageUrl] : undefined),
       notes: formData.notes || undefined,
     });
     setIsEditing(false);
@@ -112,19 +115,23 @@ export default function PropertyDetailsDrawer({
         </div>
 
         <div className="p-6 space-y-6">
-          {/* Image */}
-          {(isEditing ? formData.imageUrl : property.imageUrl) && (
-            <div className="rounded-lg overflow-hidden">
-              <img
-                src={isEditing ? formData.imageUrl : property.imageUrl}
-                alt={property.title}
-                className="w-full h-64 object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = "none";
-                }}
-              />
-            </div>
-          )}
+          {/* Image Carousel */}
+          {(() => {
+            const images = isEditing
+              ? (formData.images && formData.images.length > 0
+                  ? formData.images
+                  : formData.imageUrl
+                  ? [formData.imageUrl]
+                  : [])
+              : (property.images && property.images.length > 0
+                  ? property.images
+                  : property.imageUrl
+                  ? [property.imageUrl]
+                  : []);
+            return images.length > 0 ? (
+              <ImageCarousel images={images} height="h-64" />
+            ) : null;
+          })()}
 
           {/* Input Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -226,21 +233,35 @@ export default function PropertyDetailsDrawer({
             </div>
           </div>
 
-          {/* Image URL and Notes */}
+          {/* Images and Notes */}
           {isEditing && (
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Image URL
+                  Images {formData.images.length > 0 && `(${formData.images.length})`}
                 </label>
-                <input
-                  type="url"
-                  value={formData.imageUrl}
-                  onChange={(e) =>
-                    setFormData({ ...formData, imageUrl: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                />
+                {formData.images.length > 0 ? (
+                  <div className="space-y-2">
+                    <ImageCarousel images={formData.images} height="h-48" />
+                    <p className="text-xs text-gray-500">
+                      Images are automatically fetched from the property link. You can scroll through them above.
+                    </p>
+                  </div>
+                ) : (
+                  <input
+                    type="url"
+                    value={formData.imageUrl}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        imageUrl: e.target.value,
+                        images: e.target.value ? [e.target.value] : [],
+                      })
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="Paste image URL manually"
+                  />
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -374,6 +395,7 @@ export default function PropertyDetailsDrawer({
                       title: property.title,
                       link: property.link,
                       imageUrl: property.imageUrl || "",
+                      images: property.images || (property.imageUrl ? [property.imageUrl] : []),
                       notes: property.notes || "",
                     });
                   }}
