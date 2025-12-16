@@ -20,7 +20,6 @@ export default function PropertyDetailsDrawer({
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     price: property.price,
-    termYears: property.termYears,
     monthlyRent: (property as any).monthlyRent || (property as any).extraCosts || 0, // Support migration from extraCosts
     title: property.title,
     link: property.link,
@@ -32,7 +31,8 @@ export default function PropertyDetailsDrawer({
   const loanResult = calculateLoanMode(
     isEditing ? formData : property,
     settings.availableCash,
-    settings.interestRate
+    settings.interestRate,
+    settings.loanTermYears
   );
   const savingResult = calculateSavingMode(
     isEditing ? formData : property,
@@ -56,7 +56,6 @@ export default function PropertyDetailsDrawer({
   const handleSave = () => {
     updateProperty(property.id, {
       price: formData.price,
-      termYears: formData.termYears,
       monthlyRent: formData.monthlyRent,
       title: formData.title,
       link: formData.link,
@@ -174,24 +173,12 @@ export default function PropertyDetailsDrawer({
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Loan Term (Years)
               </label>
-              {isEditing ? (
-                <input
-                  type="number"
-                  value={formData.termYears || ""}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      termYears: Math.max(1, parseInt(e.target.value) || 30),
-                    })
-                  }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  min="1"
-                />
-              ) : (
-                <p className="text-lg font-semibold text-gray-900">
-                  {property.termYears} years
-                </p>
-              )}
+              <p className="text-lg font-semibold text-gray-900">
+                {settings.loanTermYears} years (Global Setting)
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Change this in the top bar settings
+              </p>
             </div>
 
             <div>
@@ -378,7 +365,6 @@ export default function PropertyDetailsDrawer({
                     setIsEditing(false);
                     setFormData({
                       price: property.price,
-                      termYears: property.termYears,
                       monthlyRent: (property as any).monthlyRent || (property as any).extraCosts || 0,
                       title: property.title,
                       link: property.link,

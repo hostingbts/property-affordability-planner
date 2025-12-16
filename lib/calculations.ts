@@ -4,9 +4,10 @@ import { PropertyInput, GlobalSettings, LoanCalculationResult, SavingCalculation
  * Calculate loan mode results
  */
 export function calculateLoanMode(
-  property: PropertyInput | { price: number; monthlyRent: number; termYears: number },
+  property: PropertyInput | { price: number; monthlyRent: number },
   availableCash: number,
-  interestRate: number
+  interestRate: number,
+  loanTermYears: number
 ): LoanCalculationResult {
   const totalCost = property.price; // No extra costs, just the property price
   const loanNeeded = Math.max(0, totalCost - availableCash);
@@ -15,7 +16,7 @@ export function calculateLoanMode(
   let monthlyPayment = 0;
   if (loanNeeded > 0) {
     const monthlyRate = interestRate / 100 / 12;
-    const totalMonths = property.termYears * 12;
+    const totalMonths = loanTermYears * 12;
     
     if (monthlyRate === 0) {
       monthlyPayment = loanNeeded / totalMonths;

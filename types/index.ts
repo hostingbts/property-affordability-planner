@@ -8,6 +8,7 @@ export type SavingStatus = "Already Covered" | "Realistic" | "Aggressive";
 export interface GlobalSettings {
   availableCash: number;      // "Money I have now"
   interestRate: number;        // Annual interest rate %
+  loanTermYears: number;       // Loan term in years
   mode: CalculationMode;
   currency: Currency;
 }
@@ -19,7 +20,7 @@ export interface PropertyInput {
   imageUrl?: string;      // optional thumbnail (deprecated, use images array)
   images?: string[];      // array of image URLs from the ad
   price: number;          // total property price
-  termYears: number;      // loan term in years
+  termYears?: number;     // loan term in years (deprecated, use global setting)
   monthlyRent: number;    // expected monthly rent price
   notes?: string;         // optional notes
   createdAt: string;      // ISO date
@@ -28,7 +29,6 @@ export interface PropertyInput {
 // Temporary property input for calculator (not saved yet)
 export interface PropertyInputDraft {
   price: number;
-  termYears: number;
   monthlyRent: number;
 }
 

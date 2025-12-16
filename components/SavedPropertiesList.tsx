@@ -13,7 +13,7 @@ export default function SavedPropertiesList() {
   // Calculate results for all properties
   const propertiesWithResults = useMemo(() => {
     return properties.map((property) => {
-      const loanResult = calculateLoanMode(property, settings.availableCash, settings.interestRate);
+      const loanResult = calculateLoanMode(property, settings.availableCash, settings.interestRate, settings.loanTermYears);
       const savingResult = calculateSavingMode(property, settings.availableCash, 24);
       return { property, loanResult, savingResult };
     });

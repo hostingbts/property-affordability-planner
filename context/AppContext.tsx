@@ -22,6 +22,7 @@ const STORAGE_KEYS = {
 const DEFAULT_SETTINGS: GlobalSettings = {
   availableCash: 50000,
   interestRate: 8.5,
+  loanTermYears: 30,
   mode: "loan",
   currency: "USD",
 };

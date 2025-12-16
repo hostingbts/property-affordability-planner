@@ -8,7 +8,7 @@ export default function TopBar() {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 mb-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Money I have now */}
         <div className="bg-gray-50 rounded-xl p-4">
           <label className="block text-xs font-medium text-gray-500 mb-2">
@@ -60,6 +60,27 @@ export default function TopBar() {
               min="0"
             />
             <span className="px-3 py-2 text-sm text-gray-600">%</span>
+          </div>
+        </div>
+
+        {/* Loan Term */}
+        <div className="bg-gray-50 rounded-xl p-4">
+          <label className="block text-xs font-medium text-gray-500 mb-2">
+            Loan Term
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="number"
+              value={settings.loanTermYears || ""}
+              onChange={(e) => {
+                const value = parseInt(e.target.value) || 0;
+                updateSettings({ loanTermYears: Math.max(1, value) });
+              }}
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+              placeholder="30"
+              min="1"
+            />
+            <span className="px-3 py-2 text-sm text-gray-600">years</span>
           </div>
         </div>
 
