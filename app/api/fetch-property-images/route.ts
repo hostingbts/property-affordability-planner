@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+  import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -104,9 +104,94 @@ export async function GET(request: NextRequest) {
     // If no valid images found, return all unique images (user can filter manually)
     const allImages = validImages.length > 0 ? validImages : uniqueImages;
 
+    // Extract price information
+    let price: number | null = null;
+
+    // Look for price in meta tags
+    const pricePatterns = [
+      /<meta\s+property=["']og:price:amount["']\s+content=["']([^"']+)["']/i,
+      /<meta\s+name=["']price["']\s+content=["']([^"']+)["']/i,
+      /<meta\s+property=["']product:price:amount["']\s+content=["']([^"']+)["']/i,
+      /<meta\s+itemprop=["']price["']\s+content=["']([^"']+)["']/i,
+    ];
+
+    for (const pattern of pricePatterns) {
+      const match = html.match(pattern);
+      if (match && match[1]) {
+        const extractedPrice = parseFloat(match[1].replace(/[^\d.]/g, ""));
+        if (!isNaN(extractedPrice) && extractedPrice > 0) {
+          price = extractedPrice;
+          break;
+        }
+      }
+    }
+
+    // Look for JSON-LD structured data
+    if (!price) {
+      const jsonLdPattern = /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+      let jsonLdMatch;
+      while ((jsonLdMatch = jsonLdPattern.exec(html)) !== null) {
+        const match = jsonLdMatch;
+        try {
+          const jsonData = JSON.parse(match[1]);
+          const findPrice = (obj: any): number | null => {
+            if (typeof obj === "object" && obj !== null) {
+              if (obj.price || obj.offers?.price || obj.aggregateRating?.price) {
+                const p = obj.price || obj.offers?.price || obj.aggregateRating?.price;
+                const numPrice = typeof p === "number" ? p : parseFloat(String(p).replace(/[^\d.]/g, ""));
+                if (!isNaN(numPrice) && numPrice > 0) return numPrice;
+              }
+              for (const key in obj) {
+                const result = findPrice(obj[key]);
+                if (result) return result;
+              }
+            }
+            return null;
+          };
+          const foundPrice = findPrice(jsonData);
+          if (foundPrice) {
+            price = foundPrice;
+            break;
+          }
+        } catch {
+          // Skip invalid JSON
+        }
+      }
+    }
+
+    // Look for common price patterns in text (e.g., $250,000, €300,000, etc.)
+    if (!price) {
+      const priceTextPatterns = [
+        /\$[\s]*([\d,]+(?:\.\d{2})?)\s*(?:thousand|k|million|m)?/gi,
+        /€[\s]*([\d,]+(?:\.\d{2})?)\s*(?:thousand|k|million|m)?/gi,
+        /£[\s]*([\d,]+(?:\.\d{2})?)\s*(?:thousand|k|million|m)?/gi,
+        /(?:price|cost|listed|asking)[\s:]*[\$€£]?[\s]*([\d,]+(?:\.\d{2})?)/gi,
+      ];
+
+      for (const pattern of priceTextPatterns) {
+        const matches = html.matchAll(pattern);
+        const prices: number[] = [];
+        for (const match of matches) {
+          const numStr = match[1].replace(/,/g, "");
+          const num = parseFloat(numStr);
+          if (!isNaN(num) && num > 1000 && num < 100000000) {
+            // Reasonable price range
+            prices.push(num);
+          }
+        }
+        if (prices.length > 0) {
+          // Take the most common or largest reasonable price
+          prices.sort((a, b) => b - a);
+          price = prices[0];
+          break;
+        }
+      }
+    }
+
     return NextResponse.json({
       imageUrl: allImages[0] || null, // Keep for backward compatibility
       images: allImages, // Return all images
+      price: price, // Extracted price
     });
   } catch (error: any) {
     console.error("Error fetching property images:", error);

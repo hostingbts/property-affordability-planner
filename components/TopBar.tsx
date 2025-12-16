@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useApp } from "@/context/AppContext";
 import { Currency } from "@/types";
 import SavePropertyModal from "./SavePropertyModal";
@@ -8,10 +8,49 @@ import SavePropertyModal from "./SavePropertyModal";
 export default function TopBar() {
   const { settings, updateSettings, draft, propertyLink, updateDraft, setPropertyLink, resetDraft } = useApp();
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [isFetchingData, setIsFetchingData] = useState(false);
 
   const isFormValid =
     draft.price > 0 &&
     draft.monthlyRent >= 0;
+
+  // Fetch property data (images and price) when link is pasted
+  const fetchPropertyData = async (url: string) => {
+    if (!url || !url.startsWith("http")) return;
+
+    setIsFetchingData(true);
+    try {
+      const response = await fetch(
+        `/api/fetch-property-images?url=${encodeURIComponent(url)}`
+      );
+      const data = await response.json();
+
+      if (data.images && data.images.length > 0) {
+        // Images will be handled by SavePropertyModal
+      }
+
+      if (data.price && data.price > 0) {
+        updateDraft({ price: data.price });
+      }
+    } catch (error) {
+      console.error("Error fetching property data:", error);
+      // Silently fail - user can still enter price manually
+    } finally {
+      setIsFetchingData(false);
+    }
+  };
+
+  // Debounce fetching when link changes
+  useEffect(() => {
+    if (!propertyLink || !propertyLink.startsWith("http")) return;
+
+    const timeoutId = setTimeout(() => {
+      fetchPropertyData(propertyLink);
+    }, 1500); // Wait 1.5 seconds after user stops typing
+
+    return () => clearTimeout(timeoutId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [propertyLink]);
 
   return (
     <>
@@ -161,6 +200,11 @@ export default function TopBar() {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
               placeholder="https://..."
             />
+            {isFetchingData && (
+              <p className="text-xs text-gray-500 mt-1">
+                🔍 Fetching property data...
+              </p>
+            )}
           </div>
         </div>
 
