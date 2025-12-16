@@ -54,17 +54,17 @@ export default function SavedPropertiesList() {
                 </div>
                 <div className="flex-1 flex items-center gap-6">
                   <div className="flex-shrink-0 min-w-[150px]">Title</div>
-                  <div className="flex-shrink-0 min-w-[120px]">Price</div>
+                  <div className="flex-shrink-0 min-w-[120px] border-l border-gray-300 pl-6">Price</div>
                   {settings.mode === "loan" && (
                     <>
-                      <div className="flex-shrink-0 min-w-[120px]">Loan Needed</div>
-                      <div className="flex-shrink-0 min-w-[140px]">Net Monthly Payment</div>
+                      <div className="flex-shrink-0 min-w-[120px] border-l border-gray-300 pl-6">Loan Needed</div>
+                      <div className="flex-shrink-0 min-w-[140px] border-l border-gray-300 pl-6">Net Monthly Payment</div>
                     </>
                   )}
                   {settings.mode === "savingPerMonth" && (
-                    <div className="flex-shrink-0 min-w-[140px]">Saving Per Month</div>
+                    <div className="flex-shrink-0 min-w-[140px] border-l border-gray-300 pl-6">Saving Per Month</div>
                   )}
-                  <div className="flex-shrink-0 ml-auto min-w-[120px]">Actions</div>
+                  <div className="flex-shrink-0 ml-auto min-w-[120px] border-l border-gray-300 pl-6">Actions</div>
                 </div>
               </div>
 
@@ -108,7 +108,7 @@ export default function SavedPropertiesList() {
                       </div>
 
                       {/* Price */}
-                      <div className="flex-shrink-0 min-w-[120px]">
+                      <div className="flex-shrink-0 min-w-[120px] border-l border-gray-300 pl-6">
                         <p className="font-semibold text-gray-900">
                           {formatCurrency(property.price, settings.currency)}
                         </p>
@@ -116,7 +116,7 @@ export default function SavedPropertiesList() {
 
                       {/* Loan Needed */}
                       {settings.mode === "loan" && (
-                        <div className="flex-shrink-0 min-w-[120px]">
+                        <div className="flex-shrink-0 min-w-[120px] border-l border-gray-300 pl-6">
                           <p className="font-semibold text-green-600">
                             {formatCurrency(loanResult.loanNeeded, settings.currency)}
                           </p>
@@ -125,7 +125,7 @@ export default function SavedPropertiesList() {
 
                       {/* Net Monthly Payment */}
                       {settings.mode === "loan" && (
-                        <div className="flex-shrink-0 min-w-[140px]">
+                        <div className="flex-shrink-0 min-w-[140px] border-l border-gray-300 pl-6">
                           <p className="font-semibold text-green-600">
                             {formatCurrency(loanResult.monthlyPayment, settings.currency)}
                           </p>
@@ -134,7 +134,7 @@ export default function SavedPropertiesList() {
 
                       {/* Saving Per Month (for saving mode) */}
                       {settings.mode === "savingPerMonth" && (
-                        <div className="flex-shrink-0 min-w-[140px]">
+                        <div className="flex-shrink-0 min-w-[140px] border-l border-gray-300 pl-6">
                           <p className="font-semibold text-green-600">
                             {formatCurrency(savingResult.savingPerMonth, settings.currency)}
                           </p>
@@ -142,7 +142,7 @@ export default function SavedPropertiesList() {
                       )}
 
                       {/* View Details Button */}
-                      <div className="flex-shrink-0 ml-auto min-w-[120px]">
+                      <div className="flex-shrink-0 ml-auto min-w-[120px] border-l border-gray-300 pl-6">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
