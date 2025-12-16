@@ -4,10 +4,10 @@ import { PropertyInput, GlobalSettings, LoanCalculationResult, SavingCalculation
  * Calculate loan mode results
  */
 export function calculateLoanMode(
-  property: PropertyInput | { price: number; extraCosts: number; interestRate: number; termYears: number },
+  property: PropertyInput | { price: number; monthlyRent: number; interestRate: number; termYears: number },
   availableCash: number
 ): LoanCalculationResult {
-  const totalCost = property.price + property.extraCosts;
+  const totalCost = property.price; // No extra costs, just the property price
   const loanNeeded = Math.max(0, totalCost - availableCash);
   
   // Calculate monthly payment using standard annuity formula
@@ -24,13 +24,16 @@ export function calculateLoanMode(
     }
   }
   
-  // Determine status
+  // Subtract monthly rent from the monthly payment (net monthly cost)
+  const netMonthlyPayment = Math.max(0, monthlyPayment - (property.monthlyRent || 0));
+  
+  // Determine status based on net monthly payment
   let status: LoanStatus;
-  if (monthlyPayment === 0) {
+  if (netMonthlyPayment === 0) {
     status = "Fully Funded";
-  } else if (monthlyPayment <= availableCash * 0.05) {
+  } else if (netMonthlyPayment <= availableCash * 0.05) {
     status = "Within Budget";
-  } else if (monthlyPayment <= availableCash * 0.15) {
+  } else if (netMonthlyPayment <= availableCash * 0.15) {
     status = "Almost There";
   } else {
     status = "Out of Budget";
@@ -39,7 +42,7 @@ export function calculateLoanMode(
   return {
     totalCost,
     loanNeeded,
-    monthlyPayment,
+    monthlyPayment: netMonthlyPayment, // Return net payment after rent
     status,
   };
 }
@@ -48,11 +51,11 @@ export function calculateLoanMode(
  * Calculate saving per month mode results
  */
 export function calculateSavingMode(
-  property: PropertyInput | { price: number; extraCosts: number },
+  property: PropertyInput | { price: number },
   availableCash: number,
   targetPeriodMonths: number
 ): SavingCalculationResult {
-  const totalCost = property.price + property.extraCosts;
+  const totalCost = property.price; // No extra costs, just the property price
   const neededSavings = Math.max(0, totalCost - availableCash);
   const months = Math.max(1, targetPeriodMonths);
   const savingPerMonth = neededSavings / months;

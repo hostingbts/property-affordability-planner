@@ -21,7 +21,7 @@ export interface PropertyInput {
   price: number;          // total property price
   interestRate: number;   // annual %, e.g. 8.5
   termYears: number;      // loan term in years
-  extraCosts: number;     // closing costs, taxes, repairs...
+  monthlyRent: number;    // expected monthly rent price
   notes?: string;         // optional notes
   createdAt: string;      // ISO date
 }
@@ -31,7 +31,7 @@ export interface PropertyInputDraft {
   price: number;
   interestRate: number;
   termYears: number;
-  extraCosts: number;
+  monthlyRent: number;
 }
 
 // Calculation results (never stored, always computed)

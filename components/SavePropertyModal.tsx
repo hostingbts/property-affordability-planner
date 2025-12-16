@@ -104,7 +104,7 @@ export default function SavePropertyModal({
       price: draft.price,
       interestRate: draft.interestRate,
       termYears: draft.termYears,
-      extraCosts: draft.extraCosts,
+      monthlyRent: draft.monthlyRent,
     });
 
     onSave();

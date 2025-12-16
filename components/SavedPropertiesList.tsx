@@ -112,7 +112,7 @@ export default function SavedPropertiesList() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">Monthly Payment</p>
+                      <p className="text-xs text-gray-500">Net Monthly Payment</p>
                       <p className="text-lg font-bold text-green-600">
                         {formatCurrency(loanResult.monthlyPayment, settings.currency)}
                       </p>

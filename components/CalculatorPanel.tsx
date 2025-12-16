@@ -11,7 +11,7 @@ const DEFAULT_DRAFT: PropertyInputDraft = {
   price: 0,
   interestRate: 0,
   termYears: 30,
-  extraCosts: 0,
+  monthlyRent: 0,
 };
 
 export default function CalculatorPanel() {
@@ -31,7 +31,7 @@ export default function CalculatorPanel() {
     draft.price > 0 &&
     draft.interestRate >= 0 &&
     draft.termYears > 0 &&
-    draft.extraCosts >= 0;
+    draft.monthlyRent >= 0;
 
   const getStatusColor = (status: string) => {
     if (status === "Fully Funded" || status === "Already Covered") {
@@ -116,19 +116,19 @@ export default function CalculatorPanel() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Extra Costs
+                Expected Monthly Rent
               </label>
               <input
                 type="number"
-                value={draft.extraCosts || ""}
+                value={draft.monthlyRent || ""}
                 onChange={(e) =>
                   setDraft({
                     ...draft,
-                    extraCosts: Math.max(0, parseFloat(e.target.value) || 0),
+                    monthlyRent: Math.max(0, parseFloat(e.target.value) || 0),
                   })
                 }
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="5000"
+                placeholder="1500"
                 min="0"
               />
             </div>
@@ -148,9 +148,12 @@ export default function CalculatorPanel() {
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">Monthly Payment</p>
+                <p className="text-sm text-gray-600 mb-1">Net Monthly Payment</p>
                 <p className="text-2xl font-bold text-green-600">
                   {formatCurrency(loanResult.monthlyPayment, settings.currency)}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  (After subtracting monthly rent)
                 </p>
               </div>
               <div className="flex items-center gap-3">
@@ -162,7 +165,7 @@ export default function CalculatorPanel() {
                 </span>
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                Based on your current cash and inputs above.
+                Based on your current cash and inputs above. Monthly rent is subtracted from the payment.
               </p>
             </div>
           ) : (

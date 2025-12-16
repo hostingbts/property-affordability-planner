@@ -22,7 +22,7 @@ export default function PropertyDetailsDrawer({
     price: property.price,
     interestRate: property.interestRate,
     termYears: property.termYears,
-    extraCosts: property.extraCosts,
+    monthlyRent: (property as any).monthlyRent || (property as any).extraCosts || 0, // Support migration from extraCosts
     title: property.title,
     link: property.link,
     imageUrl: property.imageUrl || "",
@@ -58,7 +58,7 @@ export default function PropertyDetailsDrawer({
       price: formData.price,
       interestRate: formData.interestRate,
       termYears: formData.termYears,
-      extraCosts: formData.extraCosts,
+      monthlyRent: formData.monthlyRent,
       title: formData.title,
       link: formData.link,
       imageUrl: formData.images[0] || formData.imageUrl || undefined,
@@ -210,16 +210,16 @@ export default function PropertyDetailsDrawer({
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Extra Costs
+                Expected Monthly Rent
               </label>
               {isEditing ? (
                 <input
                   type="number"
-                  value={formData.extraCosts || ""}
+                  value={formData.monthlyRent || ""}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      extraCosts: Math.max(0, parseFloat(e.target.value) || 0),
+                      monthlyRent: Math.max(0, parseFloat(e.target.value) || 0),
                     })
                   }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -227,7 +227,7 @@ export default function PropertyDetailsDrawer({
                 />
               ) : (
                 <p className="text-lg font-semibold text-gray-900">
-                  {formatCurrency(property.extraCosts, settings.currency)}
+                  {formatCurrency((property as any).monthlyRent || (property as any).extraCosts || 0, settings.currency)}
                 </p>
               )}
             </div>
@@ -322,9 +322,12 @@ export default function PropertyDetailsDrawer({
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Monthly Payment</p>
+                  <p className="text-sm text-gray-600 mb-1">Net Monthly Payment</p>
                   <p className="text-2xl font-bold text-green-600">
                     {formatCurrency(loanResult.monthlyPayment, settings.currency)}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    (After subtracting monthly rent)
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -391,7 +394,7 @@ export default function PropertyDetailsDrawer({
                       price: property.price,
                       interestRate: property.interestRate,
                       termYears: property.termYears,
-                      extraCosts: property.extraCosts,
+                      monthlyRent: (property as any).monthlyRent || (property as any).extraCosts || 0,
                       title: property.title,
                       link: property.link,
                       imageUrl: property.imageUrl || "",
