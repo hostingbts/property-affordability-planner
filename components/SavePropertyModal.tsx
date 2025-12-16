@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useApp } from "@/context/AppContext";
 import { PropertyInputDraft } from "@/types";
 
@@ -24,13 +24,48 @@ export default function SavePropertyModal({
     imageUrl: "",
     notes: "",
   });
+  const [isFetchingImages, setIsFetchingImages] = useState(false);
 
-  // Update link when initialLink changes
+  // Fetch images when link is provided
+  const fetchImagesFromLink = useCallback(async (url: string) => {
+    if (!url || !url.startsWith("http")) return;
+
+    setIsFetchingImages(true);
+    try {
+      const response = await fetch(
+        `/api/fetch-property-images?url=${encodeURIComponent(url)}`
+      );
+      const data = await response.json();
+
+      if (data.imageUrl) {
+        setFormData((prev) => ({ ...prev, imageUrl: data.imageUrl }));
+      }
+    } catch (error) {
+      console.error("Error fetching images:", error);
+      // Silently fail - user can still manually add image
+    } finally {
+      setIsFetchingImages(false);
+    }
+  }, []);
+
+  // Update link when initialLink changes and fetch images
   useEffect(() => {
     if (initialLink) {
       setFormData((prev) => ({ ...prev, link: initialLink }));
+      fetchImagesFromLink(initialLink);
     }
-  }, [initialLink]);
+  }, [initialLink, fetchImagesFromLink]);
+
+  // Debounce image fetching when link changes manually
+  useEffect(() => {
+    if (!formData.link || !formData.link.startsWith("http")) return;
+
+    const timeoutId = setTimeout(() => {
+      fetchImagesFromLink(formData.link);
+    }, 1500); // Wait 1.5 seconds after user stops typing
+
+    return () => clearTimeout(timeoutId);
+  }, [formData.link, fetchImagesFromLink]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,6 +138,11 @@ export default function SavePropertyModal({
               placeholder="https://..."
               required
             />
+            {isFetchingImages && (
+              <p className="text-xs text-gray-500 mt-1">
+                🔍 Fetching images from the link...
+              </p>
+            )}
           </div>
 
           <div>
@@ -116,8 +156,20 @@ export default function SavePropertyModal({
                 setFormData({ ...formData, imageUrl: e.target.value })
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              placeholder="https://..."
+              placeholder="Auto-filled from link or paste manually"
             />
+            {formData.imageUrl && (
+              <div className="mt-2 rounded-lg overflow-hidden">
+                <img
+                  src={formData.imageUrl}
+                  alt="Preview"
+                  className="w-full h-32 object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                  }}
+                />
+              </div>
+            )}
           </div>
 
           <div>
