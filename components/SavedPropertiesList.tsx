@@ -64,7 +64,7 @@ export default function SavedPropertiesList() {
                   {settings.mode === "savingPerMonth" && (
                     <div className="flex-shrink-0 min-w-[140px] border-l border-gray-300 pl-6">Saving Per Month</div>
                   )}
-                  <div className="flex-shrink-0 ml-auto min-w-[120px] border-l border-gray-300 pl-6">Actions</div>
+                  <div className="flex-shrink-0 ml-auto min-w-[200px] border-l border-gray-300 pl-6">Actions</div>
                 </div>
               </div>
 
@@ -141,8 +141,8 @@ export default function SavedPropertiesList() {
                         </div>
                       )}
 
-                      {/* View Details Button */}
-                      <div className="flex-shrink-0 ml-auto min-w-[120px] border-l border-gray-300 pl-6">
+                      {/* View Details and Delete Buttons */}
+                      <div className="flex-shrink-0 ml-auto min-w-[200px] border-l border-gray-300 pl-6 flex items-center gap-2">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -151,6 +151,17 @@ export default function SavedPropertiesList() {
                           className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
                         >
                           View Details
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (confirm("Are you sure you want to delete this property?")) {
+                              deleteProperty(property.id);
+                            }
+                          }}
+                          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
+                        >
+                          Delete
                         </button>
                       </div>
                     </div>
