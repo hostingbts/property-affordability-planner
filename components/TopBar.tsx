@@ -41,24 +41,25 @@ export default function TopBar() {
           </div>
         </div>
 
-        {/* Target period */}
+        {/* Interest Rate */}
         <div className="bg-gray-50 rounded-xl p-4">
           <label className="block text-xs font-medium text-gray-500 mb-2">
-            Target period
+            Interest Rate
           </label>
           <div className="flex gap-2">
             <input
               type="number"
-              value={settings.targetPeriodMonths || ""}
+              step="0.1"
+              value={settings.interestRate || ""}
               onChange={(e) => {
-                const value = parseInt(e.target.value) || 0;
-                updateSettings({ targetPeriodMonths: Math.max(1, value) });
+                const value = parseFloat(e.target.value) || 0;
+                updateSettings({ interestRate: Math.max(0, value) });
               }}
               className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
-              placeholder="24"
-              min="1"
+              placeholder="8.5"
+              min="0"
             />
-            <span className="px-3 py-2 text-sm text-gray-600">months</span>
+            <span className="px-3 py-2 text-sm text-gray-600">%</span>
           </div>
         </div>
 

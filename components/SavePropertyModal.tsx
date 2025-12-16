@@ -102,7 +102,6 @@ export default function SavePropertyModal({
       images: formData.images.length > 0 ? formData.images : (formData.imageUrl ? [formData.imageUrl] : undefined),
       notes: formData.notes || undefined,
       price: draft.price,
-      interestRate: draft.interestRate,
       termYears: draft.termYears,
       monthlyRent: draft.monthlyRent,
     });

@@ -20,7 +20,6 @@ export default function PropertyDetailsDrawer({
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     price: property.price,
-    interestRate: property.interestRate,
     termYears: property.termYears,
     monthlyRent: (property as any).monthlyRent || (property as any).extraCosts || 0, // Support migration from extraCosts
     title: property.title,
@@ -32,12 +31,13 @@ export default function PropertyDetailsDrawer({
 
   const loanResult = calculateLoanMode(
     isEditing ? formData : property,
-    settings.availableCash
+    settings.availableCash,
+    settings.interestRate
   );
   const savingResult = calculateSavingMode(
     isEditing ? formData : property,
     settings.availableCash,
-    settings.targetPeriodMonths
+    24 // Default to 24 months for saving mode
   );
 
   const getStatusColor = (status: string) => {
@@ -56,7 +56,6 @@ export default function PropertyDetailsDrawer({
   const handleSave = () => {
     updateProperty(property.id, {
       price: formData.price,
-      interestRate: formData.interestRate,
       termYears: formData.termYears,
       monthlyRent: formData.monthlyRent,
       title: formData.title,
@@ -163,25 +162,12 @@ export default function PropertyDetailsDrawer({
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Interest Rate (%)
               </label>
-              {isEditing ? (
-                <input
-                  type="number"
-                  step="0.1"
-                  value={formData.interestRate || ""}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      interestRate: Math.max(0, parseFloat(e.target.value) || 0),
-                    })
-                  }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  min="0"
-                />
-              ) : (
-                <p className="text-lg font-semibold text-gray-900">
-                  {property.interestRate}%
-                </p>
-              )}
+              <p className="text-lg font-semibold text-gray-900">
+                {settings.interestRate}% (Global Setting)
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Change this in the top bar settings
+              </p>
             </div>
 
             <div>
@@ -392,7 +378,6 @@ export default function PropertyDetailsDrawer({
                     setIsEditing(false);
                     setFormData({
                       price: property.price,
-                      interestRate: property.interestRate,
                       termYears: property.termYears,
                       monthlyRent: (property as any).monthlyRent || (property as any).extraCosts || 0,
                       title: property.title,

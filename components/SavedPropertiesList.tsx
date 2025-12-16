@@ -40,17 +40,17 @@ export default function SavedPropertiesList() {
             Saved Properties ({properties.length})
           </h2>
           <p className="text-sm text-gray-600">
-            Based on: {formatCurrency(settings.availableCash, settings.currency)} | {settings.targetPeriodMonths} months
+            Based on: {formatCurrency(settings.availableCash, settings.currency)} | {settings.interestRate}% interest
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {properties.map((property) => {
-            const loanResult = calculateLoanMode(property, settings.availableCash);
+            const loanResult = calculateLoanMode(property, settings.availableCash, settings.interestRate);
             const savingResult = calculateSavingMode(
               property,
               settings.availableCash,
-              settings.targetPeriodMonths
+              24 // Default to 24 months for saving mode
             );
 
             return (

@@ -4,8 +4,9 @@ import { PropertyInput, GlobalSettings, LoanCalculationResult, SavingCalculation
  * Calculate loan mode results
  */
 export function calculateLoanMode(
-  property: PropertyInput | { price: number; monthlyRent: number; interestRate: number; termYears: number },
-  availableCash: number
+  property: PropertyInput | { price: number; monthlyRent: number; termYears: number },
+  availableCash: number,
+  interestRate: number
 ): LoanCalculationResult {
   const totalCost = property.price; // No extra costs, just the property price
   const loanNeeded = Math.max(0, totalCost - availableCash);
@@ -13,7 +14,7 @@ export function calculateLoanMode(
   // Calculate monthly payment using standard annuity formula
   let monthlyPayment = 0;
   if (loanNeeded > 0) {
-    const monthlyRate = property.interestRate / 100 / 12;
+    const monthlyRate = interestRate / 100 / 12;
     const totalMonths = property.termYears * 12;
     
     if (monthlyRate === 0) {
@@ -49,11 +50,12 @@ export function calculateLoanMode(
 
 /**
  * Calculate saving per month mode results
+ * Note: This mode is less relevant now without target period, but kept for backward compatibility
  */
 export function calculateSavingMode(
   property: PropertyInput | { price: number },
   availableCash: number,
-  targetPeriodMonths: number
+  targetPeriodMonths: number = 24 // Default to 24 months if not provided
 ): SavingCalculationResult {
   const totalCost = property.price; // No extra costs, just the property price
   const neededSavings = Math.max(0, totalCost - availableCash);

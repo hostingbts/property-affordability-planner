@@ -9,7 +9,6 @@ import SavePropertyModal from "./SavePropertyModal";
 
 const DEFAULT_DRAFT: PropertyInputDraft = {
   price: 0,
-  interestRate: 0,
   termYears: 30,
   monthlyRent: 0,
 };
@@ -20,16 +19,15 @@ export default function CalculatorPanel() {
   const [propertyLink, setPropertyLink] = useState("");
   const [showSaveModal, setShowSaveModal] = useState(false);
 
-  const loanResult = calculateLoanMode(draft, settings.availableCash);
+  const loanResult = calculateLoanMode(draft, settings.availableCash, settings.interestRate);
   const savingResult = calculateSavingMode(
     draft,
     settings.availableCash,
-    settings.targetPeriodMonths
+    24 // Default to 24 months for saving mode
   );
 
   const isFormValid =
     draft.price > 0 &&
-    draft.interestRate >= 0 &&
     draft.termYears > 0 &&
     draft.monthlyRent >= 0;
 
@@ -71,26 +69,6 @@ export default function CalculatorPanel() {
                 }
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 placeholder="250000"
-                min="0"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Interest Rate (%)
-              </label>
-              <input
-                type="number"
-                step="0.1"
-                value={draft.interestRate || ""}
-                onChange={(e) =>
-                  setDraft({
-                    ...draft,
-                    interestRate: Math.max(0, parseFloat(e.target.value) || 0),
-                  })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="8.5"
                 min="0"
               />
             </div>
