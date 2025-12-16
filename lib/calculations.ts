@@ -14,7 +14,7 @@ export function calculateLoanMode(
   
   // Calculate monthly payment using standard annuity formula
   let monthlyPayment = 0;
-  if (loanNeeded > 0) {
+  if (loanNeeded > 0 && loanTermYears > 0) {
     const monthlyRate = interestRate / 100 / 12;
     const totalMonths = loanTermYears * 12;
     
@@ -25,6 +25,7 @@ export function calculateLoanMode(
       monthlyPayment = loanNeeded * (monthlyRate * (1 + monthlyRate) ** totalMonths) / ((1 + monthlyRate) ** totalMonths - 1);
     }
   }
+  // If loanTermYears is 0, monthlyPayment remains 0 (full payment upfront)
   
   // Subtract monthly rent from the monthly payment (net monthly cost)
   const netMonthlyPayment = Math.max(0, monthlyPayment - (property.monthlyRent || 0));

@@ -74,11 +74,11 @@ export default function TopBar() {
               value={settings.loanTermYears || ""}
               onChange={(e) => {
                 const value = parseInt(e.target.value) || 0;
-                updateSettings({ loanTermYears: Math.max(1, value) });
+                updateSettings({ loanTermYears: Math.max(0, value) });
               }}
               className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
               placeholder="30"
-              min="1"
+              min="0"
             />
             <span className="px-3 py-2 text-sm text-gray-600">years</span>
           </div>
