@@ -1,27 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useApp } from "@/context/AppContext";
 import { PropertyInputDraft } from "@/types";
 
 interface SavePropertyModalProps {
   draft: PropertyInputDraft;
+  initialLink?: string;
   onClose: () => void;
   onSave: () => void;
 }
 
 export default function SavePropertyModal({
   draft,
+  initialLink = "",
   onClose,
   onSave,
 }: SavePropertyModalProps) {
   const { addProperty } = useApp();
   const [formData, setFormData] = useState({
     title: "",
-    link: "",
+    link: initialLink,
     imageUrl: "",
     notes: "",
   });
+
+  // Update link when initialLink changes
+  useEffect(() => {
+    if (initialLink) {
+      setFormData((prev) => ({ ...prev, link: initialLink }));
+    }
+  }, [initialLink]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
