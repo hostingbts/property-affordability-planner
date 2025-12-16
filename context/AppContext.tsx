@@ -17,6 +17,11 @@ interface AppContextType {
   deleteProperty: (id: string) => void;
 }
 
+const DEFAULT_DRAFT: PropertyInputDraft = {
+  price: 0,
+  monthlyRent: 0,
+};
+
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
@@ -30,11 +35,6 @@ const DEFAULT_SETTINGS: GlobalSettings = {
   loanTermYears: 30,
   mode: "loan",
   currency: "USD",
-};
-
-const DEFAULT_DRAFT: PropertyInputDraft = {
-  price: 0,
-  monthlyRent: 0,
 };
 
 export function AppProvider({ children }: { children: React.ReactNode }) {

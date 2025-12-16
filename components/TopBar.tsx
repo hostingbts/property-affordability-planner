@@ -16,8 +16,8 @@ export default function TopBar() {
   return (
     <>
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 mb-6">
-        {/* Row 1: Money I have now | Want to calculate */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        {/* Row 1: Money I have now | Interest Rate | Loan Term */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div className="bg-gray-50 rounded-xl p-4">
             <label className="block text-xs font-medium text-gray-500 mb-2">
               Money I have now
@@ -49,27 +49,6 @@ export default function TopBar() {
             </div>
           </div>
 
-          <div className="bg-gray-50 rounded-xl p-4">
-            <label className="block text-xs font-medium text-gray-500 mb-2">
-              Want to calculate
-            </label>
-            <select
-              value={settings.mode}
-              onChange={(e) =>
-                updateSettings({
-                  mode: e.target.value as "loan" | "savingPerMonth",
-                })
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm bg-white"
-            >
-              <option value="loan">Loan calculation</option>
-              <option value="savingPerMonth">How much to save per month</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Row 2: Interest Rate | Loan Term */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div className="bg-gray-50 rounded-xl p-4">
             <label className="block text-xs font-medium text-gray-500 mb-2">
               Interest Rate
@@ -112,8 +91,8 @@ export default function TopBar() {
           </div>
         </div>
 
-        {/* Row 3: Property Price | Expected Monthly Rent */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        {/* Row 2: Property Price | Expected Monthly Rent | Want to calculate */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div className="bg-gray-50 rounded-xl p-4">
             <label className="block text-xs font-medium text-gray-500 mb-2">
               Property Price
@@ -149,9 +128,27 @@ export default function TopBar() {
               min="0"
             />
           </div>
+
+          <div className="bg-gray-50 rounded-xl p-4">
+            <label className="block text-xs font-medium text-gray-500 mb-2">
+              What to calculate
+            </label>
+            <select
+              value={settings.mode}
+              onChange={(e) =>
+                updateSettings({
+                  mode: e.target.value as "loan" | "savingPerMonth",
+                })
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm bg-white"
+            >
+              <option value="loan">Loan calculation</option>
+              <option value="savingPerMonth">How much to save per month</option>
+            </select>
+          </div>
         </div>
 
-        {/* Row 4: Property Link (full width) */}
+        {/* Row 3: Property Link (full width) */}
         <div className="mb-4">
           <div className="bg-gray-50 rounded-xl p-4">
             <label className="block text-xs font-medium text-gray-500 mb-2">
@@ -167,12 +164,9 @@ export default function TopBar() {
           </div>
         </div>
 
-        {/* Row 5: Calculate button | Save This Property button */}
+        {/* Row 4: Calculate button | Save This Property button */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <button
-            onClick={() => {
-              // Calculate action - results are already computed and shown in CalculatorPanel
-            }}
             className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-xl transition-colors shadow-sm"
           >
             Calculate
