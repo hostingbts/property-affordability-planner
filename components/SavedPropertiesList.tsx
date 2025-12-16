@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useApp } from "@/context/AppContext";
 import { PropertyInput } from "@/types";
 import { calculateLoanMode, calculateSavingMode } from "@/lib/calculations";
@@ -10,6 +10,14 @@ import PropertyDetailsDrawer from "./PropertyDetailsDrawer";
 export default function SavedPropertiesList() {
   const { properties, settings, deleteProperty } = useApp();
   const [selectedProperty, setSelectedProperty] = useState<PropertyInput | null>(null);
+  const [filters, setFilters] = useState({
+    priceMin: "",
+    priceMax: "",
+    loanNeededMin: "",
+    loanNeededMax: "",
+    monthlyPaymentMin: "",
+    monthlyPaymentMax: "",
+  });
 
   const getStatusColor = (status: string) => {
     if (status === "Fully Funded" || status === "Already Covered") {
@@ -24,6 +32,42 @@ export default function SavedPropertiesList() {
     return "bg-red-100 text-red-800";
   };
 
+  // Calculate results for all properties and filter them
+  const filteredProperties = useMemo(() => {
+    return properties
+      .map((property) => {
+        const loanResult = calculateLoanMode(property, settings.availableCash, settings.interestRate);
+        const savingResult = calculateSavingMode(property, settings.availableCash, 24);
+        return { property, loanResult, savingResult };
+      })
+      .filter(({ property, loanResult, savingResult }) => {
+        // Filter by price
+        if (filters.priceMin && property.price < parseFloat(filters.priceMin)) return false;
+        if (filters.priceMax && property.price > parseFloat(filters.priceMax)) return false;
+
+        // Filter by loan needed
+        if (filters.loanNeededMin && loanResult.loanNeeded < parseFloat(filters.loanNeededMin)) return false;
+        if (filters.loanNeededMax && loanResult.loanNeeded > parseFloat(filters.loanNeededMax)) return false;
+
+        // Filter by monthly payment
+        if (filters.monthlyPaymentMin && loanResult.monthlyPayment < parseFloat(filters.monthlyPaymentMin)) return false;
+        if (filters.monthlyPaymentMax && loanResult.monthlyPayment > parseFloat(filters.monthlyPaymentMax)) return false;
+
+        return true;
+      });
+  }, [properties, settings, filters]);
+
+  const clearFilters = () => {
+    setFilters({
+      priceMin: "",
+      priceMax: "",
+      loanNeededMin: "",
+      loanNeededMax: "",
+      monthlyPaymentMin: "",
+      monthlyPaymentMax: "",
+    });
+  };
+
   if (properties.length === 0) {
     return (
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
@@ -35,148 +79,191 @@ export default function SavedPropertiesList() {
   return (
     <>
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <div className="mb-4">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Saved Properties ({properties.length})
-          </h2>
-          <p className="text-sm text-gray-600">
-            Based on: {formatCurrency(settings.availableCash, settings.currency)} | {settings.interestRate}% interest
-          </p>
+        <div className="mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                Saved Properties ({filteredProperties.length} of {properties.length})
+              </h2>
+              <p className="text-sm text-gray-600">
+                Based on: {formatCurrency(settings.availableCash, settings.currency)} | {settings.interestRate}% interest
+              </p>
+            </div>
+            {(filters.priceMin || filters.priceMax || filters.loanNeededMin || filters.loanNeededMax || filters.monthlyPaymentMin || filters.monthlyPaymentMax) && (
+              <button
+                onClick={clearFilters}
+                className="text-sm text-green-600 hover:text-green-700 font-medium"
+              >
+                Clear Filters
+              </button>
+            )}
+          </div>
+
+          {/* Filters */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 p-4 bg-gray-50 rounded-lg">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Price Min</label>
+              <input
+                type="number"
+                value={filters.priceMin}
+                onChange={(e) => setFilters({ ...filters, priceMin: e.target.value })}
+                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                placeholder="Min"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Price Max</label>
+              <input
+                type="number"
+                value={filters.priceMax}
+                onChange={(e) => setFilters({ ...filters, priceMax: e.target.value })}
+                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                placeholder="Max"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Loan Min</label>
+              <input
+                type="number"
+                value={filters.loanNeededMin}
+                onChange={(e) => setFilters({ ...filters, loanNeededMin: e.target.value })}
+                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                placeholder="Min"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Loan Max</label>
+              <input
+                type="number"
+                value={filters.loanNeededMax}
+                onChange={(e) => setFilters({ ...filters, loanNeededMax: e.target.value })}
+                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                placeholder="Max"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Payment Min</label>
+              <input
+                type="number"
+                value={filters.monthlyPaymentMin}
+                onChange={(e) => setFilters({ ...filters, monthlyPaymentMin: e.target.value })}
+                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                placeholder="Min"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Payment Max</label>
+              <input
+                type="number"
+                value={filters.monthlyPaymentMax}
+                onChange={(e) => setFilters({ ...filters, monthlyPaymentMax: e.target.value })}
+                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                placeholder="Max"
+              />
+            </div>
+          </div>
         </div>
 
-        <div className="space-y-4">
-          {properties.map((property) => {
-            const loanResult = calculateLoanMode(property, settings.availableCash, settings.interestRate);
-            const savingResult = calculateSavingMode(
-              property,
-              settings.availableCash,
-              24 // Default to 24 months for saving mode
-            );
+        {/* Properties List */}
+        <div className="space-y-3">
+          {filteredProperties.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              No properties match the current filters.
+            </div>
+          ) : (
+            filteredProperties.map(({ property, loanResult, savingResult }) => {
+              const firstImage =
+                property.images && property.images.length > 0
+                  ? property.images[0]
+                  : property.imageUrl;
 
-            return (
-              <div
-                key={property.id}
-                className="bg-gray-50 rounded-xl p-4 hover:shadow-md transition-shadow cursor-pointer border border-gray-200 w-full"
-                onClick={() => setSelectedProperty(property)}
-              >
-                {/* Single Image Thumbnail */}
-                {(() => {
-                  const firstImage =
-                    property.images && property.images.length > 0
-                      ? property.images[0]
-                      : property.imageUrl;
-                  
-                  return firstImage ? (
-                    <div className="mb-3 rounded-lg overflow-hidden relative">
+              return (
+                <div
+                  key={property.id}
+                  className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200"
+                >
+                  {/* Photo on the left */}
+                  <div className="flex-shrink-0">
+                    {firstImage ? (
                       <img
                         src={firstImage}
                         alt={property.title}
-                        className="w-full h-32 object-cover"
+                        className="w-20 h-20 object-cover rounded-lg"
                         onError={(e) => {
                           (e.target as HTMLImageElement).style.display = "none";
                         }}
                       />
-                      {property.images && property.images.length > 1 && (
-                        <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded-full text-xs">
-                          {property.images.length} photos
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="mb-3 rounded-lg bg-gray-200 h-32 flex items-center justify-center">
-                      <span className="text-gray-400 text-sm">No image</span>
-                    </div>
-                  );
-                })()}
-
-                {/* Title */}
-                <h3 className="font-semibold text-gray-900 mb-2 line-clamp-1">
-                  {property.title}
-                </h3>
-
-                {/* Price */}
-                <p className="text-sm text-gray-600 mb-3">
-                  Price:{" "}
-                  <span className="font-semibold text-gray-900">
-                    {formatCurrency(property.price, settings.currency)}
-                  </span>
-                </p>
-
-                {/* Results based on mode */}
-                {settings.mode === "loan" ? (
-                  <div className="space-y-2">
-                    <div>
-                      <p className="text-xs text-gray-500">Loan Needed</p>
-                      <p className="text-lg font-bold text-green-600">
-                        {formatCurrency(loanResult.loanNeeded, settings.currency)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">Net Monthly Payment</p>
-                      <p className="text-lg font-bold text-green-600">
-                        {formatCurrency(loanResult.monthlyPayment, settings.currency)}
-                      </p>
-                    </div>
-                    <span
-                      className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(loanResult.status)}`}
-                    >
-                      {loanResult.status}
-                    </span>
+                    ) : (
+                      <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <span className="text-gray-400 text-xs">No image</span>
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="space-y-2">
-                    <div>
-                      <p className="text-xs text-gray-500">Saving Per Month</p>
-                      <p className="text-lg font-bold text-green-600">
-                        {formatCurrency(
-                          savingResult.savingPerMonth,
-                          settings.currency
-                        )}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">Needed Savings</p>
-                      <p className="text-sm font-semibold text-gray-900">
-                        {formatCurrency(
-                          savingResult.neededSavings,
-                          settings.currency
-                        )}
-                      </p>
-                    </div>
-                    <span
-                      className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(savingResult.status)}`}
-                    >
-                      {savingResult.status}
-                    </span>
-                  </div>
-                )}
 
-                {/* Actions */}
-                <div className="mt-4 pt-3 border-t border-gray-200 flex gap-2">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedProperty(property);
-                    }}
-                    className="flex-1 text-sm text-green-600 hover:text-green-700 font-medium"
-                  >
-                    View Details
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (confirm("Are you sure you want to delete this property?")) {
-                        deleteProperty(property.id);
-                      }
-                    }}
-                    className="text-sm text-red-600 hover:text-red-700 font-medium"
-                  >
-                    Delete
-                  </button>
+                  {/* Content on the right */}
+                  <div className="flex-1 flex items-center gap-6 overflow-x-auto">
+                    {/* Title */}
+                    <div className="flex-shrink-0 min-w-[150px]">
+                      <h3 className="font-semibold text-gray-900 line-clamp-1">
+                        {property.title}
+                      </h3>
+                    </div>
+
+                    {/* Price */}
+                    <div className="flex-shrink-0 min-w-[120px]">
+                      <p className="text-xs text-gray-500 mb-1">Price</p>
+                      <p className="font-semibold text-gray-900">
+                        {formatCurrency(property.price, settings.currency)}
+                      </p>
+                    </div>
+
+                    {/* Loan Needed */}
+                    {settings.mode === "loan" && (
+                      <div className="flex-shrink-0 min-w-[120px]">
+                        <p className="text-xs text-gray-500 mb-1">Loan Needed</p>
+                        <p className="font-semibold text-green-600">
+                          {formatCurrency(loanResult.loanNeeded, settings.currency)}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Net Monthly Payment */}
+                    {settings.mode === "loan" && (
+                      <div className="flex-shrink-0 min-w-[140px]">
+                        <p className="text-xs text-gray-500 mb-1">Net Monthly Payment</p>
+                        <p className="font-semibold text-green-600">
+                          {formatCurrency(loanResult.monthlyPayment, settings.currency)}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Saving Per Month (for saving mode) */}
+                    {settings.mode === "savingPerMonth" && (
+                      <div className="flex-shrink-0 min-w-[140px]">
+                        <p className="text-xs text-gray-500 mb-1">Saving Per Month</p>
+                        <p className="font-semibold text-green-600">
+                          {formatCurrency(savingResult.savingPerMonth, settings.currency)}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* View Details Button */}
+                    <div className="flex-shrink-0 ml-auto">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedProperty(property);
+                        }}
+                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+                      >
+                        View Details
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
       </div>
 
@@ -189,4 +276,3 @@ export default function SavedPropertiesList() {
     </>
   );
 }
-
