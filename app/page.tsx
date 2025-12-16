@@ -18,17 +18,13 @@ export default function Home() {
         {/* TopBar - Always visible */}
         <TopBar />
 
-        {/* Main Content - Two columns on desktop, stacked on mobile */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left: Calculator Panel */}
-          <div>
-            <CalculatorPanel />
-          </div>
+        {/* Main Content - Stacked vertically */}
+        <div className="space-y-6">
+          {/* Calculator Panel */}
+          <CalculatorPanel />
 
-          {/* Right: Saved Properties List */}
-          <div>
-            <SavedPropertiesList />
-          </div>
+          {/* Saved Properties List */}
+          <SavedPropertiesList />
         </div>
 
         {/* Footer */}

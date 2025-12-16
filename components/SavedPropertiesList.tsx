@@ -44,7 +44,7 @@ export default function SavedPropertiesList() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="flex flex-wrap gap-4">
           {properties.map((property) => {
             const loanResult = calculateLoanMode(property, settings.availableCash, settings.interestRate);
             const savingResult = calculateSavingMode(
@@ -56,7 +56,7 @@ export default function SavedPropertiesList() {
             return (
               <div
                 key={property.id}
-                className="bg-gray-50 rounded-xl p-4 hover:shadow-md transition-shadow cursor-pointer border border-gray-200"
+                className="bg-gray-50 rounded-xl p-4 hover:shadow-md transition-shadow cursor-pointer border border-gray-200 flex-shrink-0 w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(33.333%-0.67rem)] lg:w-[calc(25%-0.75rem)]"
                 onClick={() => setSelectedProperty(property)}
               >
                 {/* Single Image Thumbnail */}
