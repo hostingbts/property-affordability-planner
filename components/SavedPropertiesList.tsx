@@ -6,7 +6,6 @@ import { PropertyInput } from "@/types";
 import { calculateLoanMode, calculateSavingMode } from "@/lib/calculations";
 import { formatCurrency } from "@/lib/utils";
 import PropertyDetailsDrawer from "./PropertyDetailsDrawer";
-import ImageCarousel from "./ImageCarousel";
 
 export default function SavedPropertiesList() {
   const { properties, settings, deleteProperty } = useApp();
@@ -60,19 +59,35 @@ export default function SavedPropertiesList() {
                 className="bg-gray-50 rounded-xl p-4 hover:shadow-md transition-shadow cursor-pointer border border-gray-200"
                 onClick={() => setSelectedProperty(property)}
               >
-                {/* Image Carousel */}
-                <div className="mb-3">
-                  <ImageCarousel
-                    images={
-                      property.images && property.images.length > 0
-                        ? property.images
-                        : property.imageUrl
-                        ? [property.imageUrl]
-                        : []
-                    }
-                    height="h-32"
-                  />
-                </div>
+                {/* Single Image Thumbnail */}
+                {(() => {
+                  const firstImage =
+                    property.images && property.images.length > 0
+                      ? property.images[0]
+                      : property.imageUrl;
+                  
+                  return firstImage ? (
+                    <div className="mb-3 rounded-lg overflow-hidden relative">
+                      <img
+                        src={firstImage}
+                        alt={property.title}
+                        className="w-full h-32 object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = "none";
+                        }}
+                      />
+                      {property.images && property.images.length > 1 && (
+                        <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded-full text-xs">
+                          {property.images.length} photos
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="mb-3 rounded-lg bg-gray-200 h-32 flex items-center justify-center">
+                      <span className="text-gray-400 text-sm">No image</span>
+                    </div>
+                  );
+                })()}
 
                 {/* Title */}
                 <h3 className="font-semibold text-gray-900 mb-2 line-clamp-1">
