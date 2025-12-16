@@ -1,3 +1,4 @@
+import TopBar from "@/components/TopBar";
 import CalculatorPanel from "@/components/CalculatorPanel";
 import SavedPropertiesList from "@/components/SavedPropertiesList";
 
@@ -13,6 +14,9 @@ export default function Home() {
             Calculate loan requirements and monthly savings needed for your dream property
           </p>
         </header>
+
+        {/* TopBar - Always visible */}
+        <TopBar />
 
         {/* Main Content - Stacked vertically */}
         <div className="space-y-6">

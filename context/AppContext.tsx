@@ -1,12 +1,17 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { GlobalSettings, PropertyInput } from "@/types";
+import { GlobalSettings, PropertyInput, PropertyInputDraft } from "@/types";
 
 interface AppContextType {
   settings: GlobalSettings;
   properties: PropertyInput[];
+  draft: PropertyInputDraft;
+  propertyLink: string;
   updateSettings: (settings: Partial<GlobalSettings>) => void;
+  updateDraft: (draft: Partial<PropertyInputDraft>) => void;
+  setPropertyLink: (link: string) => void;
+  resetDraft: () => void;
   addProperty: (property: Omit<PropertyInput, "id" | "createdAt">) => void;
   updateProperty: (id: string, property: Partial<PropertyInput>) => void;
   deleteProperty: (id: string) => void;
@@ -27,9 +32,16 @@ const DEFAULT_SETTINGS: GlobalSettings = {
   currency: "USD",
 };
 
+const DEFAULT_DRAFT: PropertyInputDraft = {
+  price: 0,
+  monthlyRent: 0,
+};
+
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<GlobalSettings>(DEFAULT_SETTINGS);
   const [properties, setProperties] = useState<PropertyInput[]>([]);
+  const [draft, setDraft] = useState<PropertyInputDraft>(DEFAULT_DRAFT);
+  const [propertyLink, setPropertyLinkState] = useState<string>("");
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Load from localStorage on mount
@@ -77,6 +89,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setSettings((prev) => ({ ...prev, ...newSettings }));
   }, []);
 
+  const updateDraft = useCallback((newDraft: Partial<PropertyInputDraft>) => {
+    setDraft((prev) => ({ ...prev, ...newDraft }));
+  }, []);
+
+  const setPropertyLink = useCallback((link: string) => {
+    setPropertyLinkState(link);
+  }, []);
+
+  const resetDraft = useCallback(() => {
+    setDraft(DEFAULT_DRAFT);
+    setPropertyLinkState("");
+  }, []);
+
   const addProperty = useCallback((propertyData: Omit<PropertyInput, "id" | "createdAt">) => {
     const newProperty: PropertyInput = {
       ...propertyData,
@@ -101,7 +126,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       value={{
         settings,
         properties,
+        draft,
+        propertyLink,
         updateSettings,
+        updateDraft,
+        setPropertyLink,
+        resetDraft,
         addProperty,
         updateProperty,
         deleteProperty,
